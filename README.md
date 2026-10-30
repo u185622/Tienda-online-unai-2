@@ -18,3 +18,65 @@ Hay tres tipos de productos: los normales, los electrónicos (que tienen meses d
 
 En este repositorio voy a ir subiendo el proyecto y trabajando con Git, ramas y Pull Requests, y
 más adelante lo meteré en un contenedor de Docker.
+
+## Cómo está organizado
+
+```
+├── src/                    La API (lo que se ejecuta en el servidor)
+│   ├── main.py             Aplicación FastAPI con todos los endpoints
+│   ├── schemas.py          Esquemas de Pydantic para validar lo que entra y sale
+│   ├── models/             Producto, Usuario y Pedido
+│   └── services/           TiendaService (la lógica de la tienda) y las excepciones
+├── cliente/cliente.py      Un cliente en Python que prueba la API con requests
+├── frontend/               Una web para usar la tienda (Streamlit, o HTML + JavaScript)
+└── requirements.txt        Las librerías que hacen falta
+```
+
+## Cómo ejecutarlo en local
+
+Primero instala las librerías:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Luego arranca la API desde la carpeta `src`:
+
+```bash
+cd src
+uvicorn main:app --reload
+```
+
+Y abre http://localhost:8000/docs en el navegador. Ahí sale la documentación de Swagger y se puede
+probar cada endpoint directamente. Los datos se guardan en memoria, así que si reinicias el servidor
+se pierde todo.
+
+Con la API arrancada también puedes probar el cliente o el frontend:
+
+```bash
+python cliente/cliente.py
+streamlit run frontend/streamlit_app.py
+```
+
+## Endpoints
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| POST | `/usuarios` | Crea un usuario (cliente o administrador) |
+| GET | `/usuarios` | Lista los usuarios |
+| GET | `/usuarios/{usuario_id}` | Devuelve un usuario |
+| GET | `/usuarios/{cliente_id}/pedidos` | Pedidos de un cliente |
+| POST | `/productos` | Crea un producto (generico, electronico o ropa) |
+| GET | `/productos` | Lista los productos |
+| GET | `/productos/{producto_id}` | Devuelve un producto |
+| DELETE | `/productos/{producto_id}` | Elimina un producto |
+| POST | `/pedidos` | Crea un pedido |
+
+Si algo sale mal, la API devuelve 400 (el usuario no es cliente), 404 (no existe el usuario o el
+producto), 409 (no hay stock) o 422 (los datos no son válidos).
+
+## Ramas
+
+En `main` está la versión que funciona. Cada cosa nueva la hago en su propia rama
+(`feature/algo`, por ejemplo `feature/docker`) y cuando está terminada la junto con `main` mediante
+un Pull Request.
