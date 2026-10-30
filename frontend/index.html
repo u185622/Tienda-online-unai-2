@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tienda Online</title>
+  <style>
+    :root { --azul: #1f4e79; --gris: #f3f5f8; --borde: #d0d7e2; --error: #b3261e; --ok: #1e7b34; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; background: var(--gris); color: #222; }
+    header { background: var(--azul); color: #fff; padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    header h1 { margin: 0; font-size: 1.3rem; }
+    header input { width: 260px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); }
+    section { background: #fff; border: 1px solid var(--borde); border-radius: 8px; padding: 16px; }
+    h2 { margin-top: 0; font-size: 1.1rem; color: var(--azul); }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid var(--borde); }
+    form { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-top: 12px; }
+    label { display: flex; flex-direction: column; font-size: .8rem; gap: 2px; }
+    input, select, button { padding: 6px 8px; border: 1px solid var(--borde); border-radius: 4px; font: inherit; }
+    button { background: var(--azul); color: #fff; border: none; cursor: pointer; }
+    button.secundario { background: #fff; color: var(--azul); border: 1px solid var(--azul); }
+    button.peligro { background: var(--error); }
+    .linea { display: flex; gap: 8px; width: 100%; }
+    #mensaje { position: fixed; bottom: 16px; right: 16px; padding: 10px 14px; border-radius: 6px; color: #fff; display: none; max-width: 420px; }
+    #mensaje.ok { background: var(--ok); display: block; }
+    #mensaje.error { background: var(--error); display: block; }
+    .oculto { display: none !important; }
+    @media (max-width: 560px) { main { grid-template-columns: 1fr; padding: 8px; } header input { width: 100%; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tienda Online</h1>
+    <div>
+      <label style="flex-direction:row;align-items:center;gap:6px;color:#fff">URL de la API
+        <input id="api-url" value="http://localhost:8000">
+      </label>
+      <button class="secundario" id="btn-recargar">Conectar</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Productos -->
+    <section>
+      <h2>Productos</h2>
+      <table>
+        <thead><tr><th>Nombre</th><th>Tipo</th><th>Precio</th><th>Stock</th><th>Detalles</th><th></th></tr></thead>
+        <tbody id="tabla-productos"></tbody>
+      </table>
+      <form id="form-producto">
+        <label>Tipo
+          <select name="tipo" id="producto-tipo">
+            <option value="generico">Genérico</option>
+            <option value="electronico">Electrónico</option>
+            <option value="ropa">Ropa</option>
+          </select>
+        </label>
+        <label>Nombre <input name="nombre" required></label>
+        <label>Precio <input name="precio" type="number" step="0.01" min="0.01" required></label>
+        <label>Stock <input name="stock" type="number" min="0" required></label>
+        <label class="campo-electronico oculto">Garantía (meses) <input name="meses_garantia" type="number" min="0"></label>
+        <label class="campo-ropa oculto">Talla <input name="talla"></label>
+        <label class="campo-ropa oculto">Color <input name="color"></label>
+        <button type="submit">Crear producto</button>
+      </form>
+    </section>
+
+    <!-- Usuarios -->
+    <section>
+      <h2>Usuarios</h2>
+      <table>
+        <thead><tr><th>Nombre</th><th>Email</th><th>Tipo</th><th>Dirección</th></tr></thead>
+        <tbody id="tabla-usuarios"></tbody>
+      </table>
+      <form id="form-usuario">
+        <label>Tipo
+          <select name="tipo" id="usuario-tipo">
+            <option value="cliente">Cliente</option>
+            <option value="administrador">Administrador</option>
+          </select>
+        </label>
+        <label>Nombre <input name="nombre" required></label>
+        <label>Email <input name="email" type="email" required></label>
+        <label id="campo-direccion">Dirección <input name="direccion"></label>
+        <button type="submit">Crear usuario</button>
+      </form>
+    </section>
+
+    <!-- Crear pedido -->
+    <section>
+      <h2>Crear pedido</h2>
+      <form id="form-pedido">
+        <label style="width:100%">Cliente <select name="cliente_id" id="pedido-cliente" required></select></label>
+        <div id="lineas-pedido" style="width:100%;display:grid;gap:6px"></div>
+        <button type="button" class="secundario" id="btn-add-linea">+ Añadir producto</button>
+        <button type="submit">Realizar pedido</button>
+      </form>
+    </section>
+
+    <!-- Pedidos de un usuario -->
+    <section>
+      <h2>Pedidos de un usuario</h2>
+      <form id="form-consulta-pedidos">
+        <label style="flex:1">Usuario <select id="consulta-usuario" required></select></label>
+        <button type="submit">Consultar</button>
+      </form>
+      <div id="resultado-pedidos"></div>
+    </section>
+  </main>
+
+  <div id="mensaje"></div>
+  <script src="app.js"></script>
+</body>
+</html>
