@@ -16,8 +16,8 @@ va mal (el producto no existe, no hay stock...) devuelve el código de error que
 Hay tres tipos de productos: los normales, los electrónicos (que tienen meses de garantía) y la ropa
 (que tiene talla y color).
 
-En este repositorio voy a ir subiendo el proyecto y trabajando con Git, ramas y Pull Requests, y
-más adelante lo meteré en un contenedor de Docker.
+En este repositorio está el proyecto, trabajado con Git, ramas y Pull Requests, y la API se puede
+ejecutar en un contenedor de Docker.
 
 ## Cómo está organizado
 
@@ -31,6 +31,7 @@ más adelante lo meteré en un contenedor de Docker.
 ├── frontend/               Una web para usar la tienda (Streamlit, o HTML + JavaScript)
 ├── requirements.txt        Librerías de la API (las que se instalan en la imagen de Docker)
 ├── requirements-clientes.txt  Librerías extra para el cliente y el frontend
+├── .github/workflows/      Build, prueba y publicación automática de la imagen
 ├── dockerfile              Cómo se construye la imagen de Docker
 └── .dockerignore           Lo que Docker no tiene que meter en la imagen
 ```
@@ -146,14 +147,21 @@ Después:
    python cliente/cliente.py http://localhost:8000
    ```
 
-### Publicar la imagen en Docker Hub
+### Publicar la imagen
+
+La imagen se publica en GitHub Container Registry. Cada push a `main` o `feature/docker` lanza el
+workflow `.github/workflows/docker.yml`, que sigue el flujo build → run → test → push: construye la
+imagen, la arranca, la prueba con el cliente y, si todo va bien, la sube con las etiquetas `1.0` y
+`latest`.
+
+También se puede publicar a mano (el token de GitHub necesita el permiso `write:packages`):
 
 ```bash
-docker login
-docker tag tienda-online:1.0 unailama/tienda-online:1.0
-docker tag tienda-online:1.0 unailama/tienda-online:latest
-docker push unailama/tienda-online:1.0
-docker push unailama/tienda-online:latest
+docker login ghcr.io -u u185622
+docker tag tienda-online:1.0 ghcr.io/u185622/tienda-online:1.0
+docker tag tienda-online:1.0 ghcr.io/u185622/tienda-online:latest
+docker push ghcr.io/u185622/tienda-online:1.0
+docker push ghcr.io/u185622/tienda-online:latest
 ```
 
 ### Descargar y usar la imagen publicada
@@ -161,8 +169,8 @@ docker push unailama/tienda-online:latest
 Cualquiera puede usarla sin tener el código:
 
 ```bash
-docker pull unailama/tienda-online:1.0
-docker run --rm -p 8000:8000 unailama/tienda-online:1.0
+docker pull ghcr.io/u185622/tienda-online:1.0
+docker run --rm -p 8000:8000 ghcr.io/u185622/tienda-online:1.0
 ```
 
 ## Ramas
