@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.git
+.gitignore
+.venv
+venv/
+.pytest_cache/
+.DS_Store
+tests/
+.env
+cliente/
+frontend/
+requirements-clientes.txt
+README.md

@@ -1,12 +1,15 @@
 """Punto de entrada de la aplicación: expone TiendaService como API REST con FastAPI.
 
-Ejecución (desde la carpeta Tienda_online):
+Ejecución (desde la carpeta src):
+    python main.py                                 # usa las variables de entorno HOST y PORT
     uvicorn main:app --reload                      # solo este equipo
     uvicorn main:app --host 0.0.0.0 --port 8000    # accesible desde la red local
 """
 
+import os
 from typing import List
 
+import uvicorn
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -183,3 +186,11 @@ def crear_pedido(datos: PedidoCreate) -> PedidoRead:
     """Crea un pedido verificando cliente, productos y stock disponible."""
     pedido = tienda.realizar_pedido(datos.cliente_id, datos.cantidades())
     return pedido_a_read(pedido)
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        app,
+        host=os.environ.get("HOST", "127.0.0.1"),
+        port=int(os.environ.get("PORT", "8000")),
+    )

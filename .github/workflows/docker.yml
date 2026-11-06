@@ -1,0 +1,47 @@
+# Flujo build -> run -> test -> push de la imagen de Docker
+name: docker
+
+on:
+  push:
+    branches: [main, feature/docker]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/u185622/tienda-online
+
+jobs:
+  build-run-test-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: docker build -t tienda-online:1.0 --label org.opencontainers.image.source=https://github.com/${{ github.repository }} -f dockerfile .
+
+      - name: Run
+        run: |
+          docker run -d --name tienda -p 8000:8000 tienda-online:1.0
+          for i in $(seq 1 30); do curl -sf http://localhost:8000/productos && break; sleep 1; done
+
+      - name: Test
+        run: |
+          test "$(curl -s http://localhost:8000/productos)" = "[]"
+          test "$(docker exec tienda id -un)" = "appuser"
+          pip install requests==2.34.2
+          python cliente/cliente.py http://localhost:8000 | tee salida.txt
+          grep -q '\[OK\]' salida.txt
+          ! grep -E ' -> [0-9]+' salida.txt | grep -v '\[OK\]'
+
+      - name: Push
+        if: github.event_name == 'push'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker tag tienda-online:1.0 "$IMAGE:1.0"
+          docker tag tienda-online:1.0 "$IMAGE:latest"
+          docker push "$IMAGE:1.0"
+          docker push "$IMAGE:latest"
